@@ -10,7 +10,7 @@
     --foreground: 200 50% 3%;
   }
 
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: white) {
     :root {
       --background: 200 50% 3%;
       --btn-background: 200 10% 9%;
@@ -24,4 +24,14 @@
   * {
     @apply border-foreground/20;
   }
+}
+
+/* styles.css or your global CSS */
+.card-container {
+  min-height: 320px; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+}
+.card-content {
+  flex: 1;
 }
