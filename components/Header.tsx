@@ -5,14 +5,14 @@ export default function Header() {
       <div className="flex gap-8 justify-center items-center">
         <span className="border-l rotate-45 h-6" />
       </div>
-      <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
+      <div className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
         <p
           className="font-bold hover:underline"
           rel="noreferrer"
         >
           Recipe AI
         </p>
-      </p>
+      </div>
     </div>
   );
 }
