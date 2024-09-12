@@ -11,7 +11,7 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata = {
   metadataBase: new URL(defaultUrl),
   title: "My Kart.ai",
-  description: "Easily answer any grocery shopping questions",
+  description: "Easily answer any cooking questions",
 };
 
 export default function RootLayout({

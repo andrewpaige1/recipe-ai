@@ -2,6 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import MealCard from "../../../components/MealCard";
 import HeaderTitle from "../../../components/HeaderTitle";
+import AuthButton from "@/components/AuthButton";
+
 
 export default async function ProtectedPage() {
 
@@ -23,6 +25,7 @@ export default async function ProtectedPage() {
         <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
           <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
           <HeaderTitle/>
+          <AuthButton />
           </div>
         </nav>
       </div>

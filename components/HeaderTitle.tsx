@@ -1,6 +1,6 @@
 "use client"
 
-import { Text} from '@mantine/core';
+import { Text } from '@mantine/core';
 
 export default function HeaderTitle() {
   return (
