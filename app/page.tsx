@@ -27,7 +27,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ isSupabaseConnected }) => {
             <ul className="flex space-x-4 items-center">
               <li><a href="#features" className="text-gray-600 hover:text-green-500 transition-colors">Features</a></li>
               <li><a href="#how-it-works" className="text-gray-600 hover:text-green-500 transition-colors">How It Works</a></li>
-              <li><DeployButton /></li>
               {isSupabaseConnected && <li><AuthButton /></li>}
             </ul>
           </nav>
