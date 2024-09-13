@@ -71,7 +71,7 @@ async function sendMessage(formData: FormData, mealId: string) {
   messagesStore.set(mealId, currentMessages);
 
   console.log(aiResponse);
-  revalidatePath(`/chat/${mealId}`);
+  revalidatePath(`/chat/${mealId}`, 'page');
 }
 
 export default async function ProtectedPage({ params }: { params: { id: string } }) {
