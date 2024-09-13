@@ -54,6 +54,7 @@ async function getAIResponse(message: any, mealDetails: any) {
   );
 
   const result = await response.json();
+  revalidatePath(`/protected/chat/${mealDetails.mealId}`);
   return result.result.response;
 }
 
@@ -70,7 +71,7 @@ async function sendMessage(formData: FormData, mealId: string) {
   currentMessages.push({ message: aiResponse, isAIorUser: 'ai' });
   messagesStore.set(mealId, currentMessages);
 
-  revalidatePath(`/`);
+  revalidatePath(`/protected/chat/${mealId}`);
 }
 
 export default async function ProtectedPage({ params }: { params: { id: string } }) {
