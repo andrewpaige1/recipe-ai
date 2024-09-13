@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import MealCard from "../../../components/MealCard";
-import HeaderTitle from "../../../components/HeaderTitle";
+import MealCard from "../../components/MealCard";
+import HeaderTitle from "../../components/HeaderTitle";
 import AuthButton from "@/components/AuthButton";
 
 
