@@ -10,7 +10,10 @@ interface MessagesType {
   isAIorUser: string;
 }
 
-let messages: MessagesType[] = [{ message: 'Hello, ask me anything about the meal you want to make!', isAIorUser: 'ai' }];
+const initialMessage: MessagesType = { message: 'Hello, ask me anything about the meal you want to make!', isAIorUser: 'ai' };
+
+// Use a Map to store messages for each meal ID
+const messagesStore = new Map<string, MessagesType[]>();
 
 const getMealDetails = async (id: string) => {
   try {
@@ -51,7 +54,6 @@ async function getAIResponse(message: any, mealDetails: any) {
   );
 
   const result = await response.json();
-  messages.push({ message: result.result.response, isAIorUser: 'ai' });
   return result.result.response;
 }
 
@@ -59,13 +61,17 @@ async function sendMessage(formData: FormData, mealId: string) {
   'use server';
 
   const message = formData.get('message') as string;
-  messages.push({ message, isAIorUser: 'user' });
+  let currentMessages = messagesStore.get(mealId) || [initialMessage];
+  currentMessages = [...currentMessages, { message, isAIorUser: 'user' }];
 
   const mealDetails = await getMealDetails(mealId);
   const aiResponse = await getAIResponse(message, mealDetails);
 
+  currentMessages.push({ message: aiResponse, isAIorUser: 'ai' });
+  messagesStore.set(mealId, currentMessages);
+
   console.log(aiResponse);
-  revalidatePath('/chat');
+  revalidatePath(`/chat/${mealId}`);
 }
 
 export default async function ProtectedPage({ params }: { params: { id: string } }) {
@@ -82,6 +88,13 @@ export default async function ProtectedPage({ params }: { params: { id: string }
   // Fetch meal details using the ID from params
   const mealDetails = await getMealDetails(params.id);
 
+  // Get or initialize messages for this meal ID
+  let messages = messagesStore.get(params.id);
+  if (!messages) {
+    messages = [initialMessage];
+    messagesStore.set(params.id, messages);
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <nav className="w-full bg-white shadow-sm">
@@ -89,7 +102,7 @@ export default async function ProtectedPage({ params }: { params: { id: string }
           <h1 className="text-xl font-semibold text-gray-800">
             {mealDetails?.meals?.[0]?.strMeal || 'Unknown'}
           </h1>
-            <AuthButton/>
+          <AuthButton/>
         </div>
       </nav>
 
@@ -119,7 +132,6 @@ export default async function ProtectedPage({ params }: { params: { id: string }
           </div>
         </div>
 
-        {/* Chat input stays fixed below */}
         <div className="mt-4">
           <ChatInput
             sendMessage={async (formData: FormData) => {

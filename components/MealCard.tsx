@@ -37,7 +37,6 @@ export default function MealCard({ thumbnail, mealTitle, mealID }: MealCardProps
           >
             <Text fw={500} style={{ flex: 1 }} lineClamp={2}>{mealTitle}</Text>
           </Tooltip>
-          <Badge color="pink">On Sale</Badge>
         </Group>
       </Box>
 
