@@ -22,7 +22,7 @@ export default function ChatInput({ sendMessage }: ChatInputProps) {
     setInputMessage('');
     startTransition(async () => {
       await sendMessage(formData);
-     router.refresh();
+     //router.refresh();
     });
   };
 
