@@ -161,12 +161,7 @@ export default async function ProtectedPage({ params }: { params: { id: string }
         </div>
 
         <div className="mt-4">
-          <ChatInput
-            sendMessage={async (formData: FormData) => {
-              'use server';
-              await sendMessage(formData, params.id);
-            }}
-          />
+        <ChatInput mealId={params.id} initialMessages={allMessages} />
         </div>
       </div>
     </div>
