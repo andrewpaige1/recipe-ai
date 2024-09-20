@@ -47,9 +47,12 @@ export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
 
       eventSourceRef.current = new EventSource(`/api/chat-stream?message=${encodeURIComponent(inputMessage)}&mealId=${mealId}`);
 
+      let fullResponse = '';
+
       eventSourceRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        updateAIMessage(aiMessageId, data.chunk);
+        fullResponse += data.chunk;
+        updateAIMessage(aiMessageId, fullResponse);
       };
 
       eventSourceRef.current.onerror = (error) => {
@@ -64,7 +67,7 @@ export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
   const updateAIMessage = (messageId: number, content: string) => {
     setMessages(prevMessages => 
       prevMessages.map(msg => 
-        msg.id === messageId ? { ...msg, content: msg.content + content } : msg
+        msg.id === messageId ? { ...msg, content: content } : msg
       )
     );
   };
