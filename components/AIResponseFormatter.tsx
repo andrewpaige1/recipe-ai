@@ -1,8 +1,11 @@
+"use client";
+
 import React from 'react';
 
 interface ContentItem {
   type: 'listItem' | 'text';
   text: string;
+  formattedText?: React.ReactNode;
 }
 
 interface Section {
@@ -16,6 +19,15 @@ interface AIResponseFormatterProps {
 }
 
 const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, truncated }) => {
+  const formatText = (text: string): React.ReactNode => {
+    return text.split(/(\*\*.*?\*\*)/).map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   const parseResponse = (text: string): Section[] => {
     if (!text) return [];
 
@@ -25,7 +37,7 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, tru
 
     lines.forEach(line => {
       const trimmedLine = line.trim();
-      if (trimmedLine.startsWith('**')) {
+      if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
         if (currentSection) {
           sections.push(currentSection);
         }
@@ -39,7 +51,8 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, tru
         }
         currentSection.content.push({
           type: 'listItem',
-          text: trimmedLine.substring(1).trim()
+          text: trimmedLine.substring(1).trim(),
+          formattedText: formatText(trimmedLine.substring(1).trim())
         });
       } else if (trimmedLine) {
         if (!currentSection) {
@@ -47,7 +60,8 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, tru
         }
         currentSection.content.push({
           type: 'text',
-          text: trimmedLine
+          text: trimmedLine,
+          formattedText: formatText(trimmedLine)
         });
       }
     });
@@ -62,9 +76,9 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, tru
   const renderContent = (content: ContentItem[]): React.ReactNode => {
     return content.map((item, index) => {
       if (item.type === 'listItem') {
-        return <li key={index} className="mb-1 last:mb-0">{item.text}</li>;
+        return <li key={index} className="mb-1 last:mb-0">{item.formattedText || item.text}</li>;
       } else {
-        return <p key={index} className="mb-2 last:mb-0">{item.text}</p>;
+        return <p key={index} className="mb-2 last:mb-0">{item.formattedText || item.text}</p>;
       }
     });
   };
@@ -79,7 +93,7 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, tru
     <div className="flex flex-col">
       {parsedResponse.map((section, index) => (
         <div key={index} className="mb-2 last:mb-0">
-          {section.title && <h3 className="text-lg font-semibold mb-1">{section.title}</h3>}
+          {section.title && <h3 className="text-lg font-semibold mb-1">{formatText(section.title)}</h3>}
           {section.content.some(item => item.type === 'listItem') ? (
             <ul className="list-disc pl-5 space-y-1">
               {renderContent(section.content)}
