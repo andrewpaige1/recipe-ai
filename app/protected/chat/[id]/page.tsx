@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import ChatInput from "@/components/ChatInput";
 import AuthButton from "@/components/AuthButton";
+import Link from 'next/link'
 
 interface Message {
   id: number;
@@ -59,9 +60,9 @@ export default async function ProtectedPage({ params }: { params: { id: string }
     <div className="flex flex-col h-screen bg-gradient-to-b from-blue-50 to-white">
       <nav className="w-full bg-white shadow-md">
         <div className="w-full max-w-5xl mx-auto flex justify-between items-center p-4">
-          <h1 className="text-2xl font-bold text-gray-800">
+          <Link href="/protected" className="text-2xl font-bold text-blue-800">
             {mealDetails?.meals?.[0]?.strMeal || 'Culinary Assistant'}
-          </h1>
+          </Link>
           <AuthButton />
         </div>
       </nav>

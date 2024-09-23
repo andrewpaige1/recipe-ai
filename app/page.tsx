@@ -21,7 +21,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ isSupabaseConnected }) => {
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center">
             <RiAtLine className="text-3xl text-green-500 mr-2" />
-            <h1 className="text-2xl font-bold text-gray-800">Recipe AI</h1>
+            <h1 className="text-2xl font-bold text-gray-800">taste texter</h1>
           </div>
           <nav>
             <ul className="flex space-x-4 items-center">
@@ -86,7 +86,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ isSupabaseConnected }) => {
 
         <section id="get-started" className="text-center">
           <h3 className="text-2xl font-bold text-gray-800 mb-4">Ready to Cook Smarter?</h3>
-          <p className="text-xl text-gray-600 mb-8">Join Recipe AI today and transform your cooking experience!</p>
+          <p className="text-xl text-gray-600 mb-8">Join taste texter today and transform your cooking experience!</p>
           {isSupabaseConnected ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
         </section>
       </main>

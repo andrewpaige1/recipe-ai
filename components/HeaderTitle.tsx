@@ -4,6 +4,6 @@ import { Text } from '@mantine/core';
 
 export default function HeaderTitle() {
   return (
-    <Text>Recipe AI</Text>
+    <Text fw={700} c='blue'>taste texter</Text>
   );
 }

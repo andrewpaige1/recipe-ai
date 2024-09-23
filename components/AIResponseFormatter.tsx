@@ -12,9 +12,10 @@ interface Section {
 
 interface AIResponseFormatterProps {
   response: string;
+  truncated?: boolean;
 }
 
-const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response }) => {
+const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response, truncated }) => {
   const parseResponse = (text: string): Section[] => {
     if (!text) return [];
 
@@ -88,6 +89,11 @@ const AIResponseFormatter: React.FC<AIResponseFormatterProps> = ({ response }) =
           )}
         </div>
       ))}
+      {truncated && (
+        <p className="text-red-500 font-semibold mt-2">
+          [Response truncated due to length]
+        </p>
+      )}
     </div>
   );
 };

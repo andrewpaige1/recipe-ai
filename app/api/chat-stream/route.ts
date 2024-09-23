@@ -3,6 +3,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from 'next/server';
 
+const WORD_LIMIT = 900;
+
 const getMealDetails = async (id: string) => {
   try {
     let data = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
@@ -28,7 +30,8 @@ async function getAIResponseStream(message: string, mealDetails: any) {
           {
             role: "system",
             content: `You are a friendly assistant that helps with meal information. Your responses should be short, or at least easily readable like a list. 
-            You are also United States based. Here are the details of the meal: ${JSON.stringify(mealDetails)}`,
+            You are also United States based. Here are the details of the meal: ${JSON.stringify(mealDetails)}
+            IMPORTANT: Your response must not exceed ${WORD_LIMIT} words. If you reach this limit, end your response with "[TRUNCATED]".`,
           },
           {
             role: "user",
@@ -55,6 +58,7 @@ async function* streamCompletion(stream: ReadableStream<Uint8Array>) {
   const reader = stream.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
+  let wordCount = 0;
 
   try {
     while (true) {
@@ -73,6 +77,14 @@ async function* streamCompletion(stream: ReadableStream<Uint8Array>) {
             try {
               const parsed = JSON.parse(data);
               if (parsed.response) {
+                const words = parsed.response.split(/\s+/);
+                wordCount += words.length;
+                
+                if (wordCount > WORD_LIMIT) {
+                  yield "[TRUNCATED]";
+                  return;
+                }
+                
                 yield parsed.response;
               }
             } catch (error) {
@@ -102,21 +114,6 @@ export async function GET(request: NextRequest) {
   if (!user) {
     return new NextResponse('User not authenticated', { status: 401 });
   }
-
-  // Insert user message
-  /*const { error: userError } = await supabase
-    .from('messages')
-    .insert({ 
-      meal_id: mealId, 
-      content: message, 
-      is_ai: false,
-      user_id: user.id
-    });
-
-  if (userError) {
-    console.error("Error inserting user message:", userError);
-    return new NextResponse('Error inserting user message', { status: 500 });
-  }*/
 
   const mealDetails = await getMealDetails(mealId);
   

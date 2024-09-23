@@ -7,7 +7,7 @@ export default function Header() {
           className="font-bold hover:underline"
           rel="noreferrer"
         >
-          Recipe AI
+          taste texter
         </p>
       </div>
     </div>

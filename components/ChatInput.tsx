@@ -15,6 +15,7 @@ interface Message {
   content: string;
   is_ai: boolean;
   created_at: string;
+  truncated?: boolean;
 }
 
 export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
@@ -48,11 +49,21 @@ export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
       eventSourceRef.current = new EventSource(`/api/chat-stream?message=${encodeURIComponent(inputMessage)}&mealId=${mealId}`);
 
       let fullResponse = '';
+      let isTruncated = false;
 
       eventSourceRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        fullResponse += data.chunk;
-        updateAIMessage(aiMessageId, fullResponse);
+        if (data.chunk === "[TRUNCATED]") {
+          isTruncated = true;
+          fullResponse += data.chunk.replace("[TRUNCATED]", "");
+          updateAIMessage(aiMessageId, fullResponse, true);
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+          }
+        } else {
+          fullResponse += data.chunk;
+          updateAIMessage(aiMessageId, fullResponse, false);
+        }
       };
 
       eventSourceRef.current.onerror = (error) => {
@@ -64,10 +75,10 @@ export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
     });
   };
 
-  const updateAIMessage = (messageId: number, content: string) => {
+  const updateAIMessage = (messageId: number, content: string, truncated: boolean) => {
     setMessages(prevMessages => 
       prevMessages.map(msg => 
-        msg.id === messageId ? { ...msg, content: content } : msg
+        msg.id === messageId ? { ...msg, content: content, truncated: truncated } : msg
       )
     );
   };
@@ -103,7 +114,7 @@ export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
               } ${msg.is_ai ? 'self-start' : 'self-end'}`}
             >
               {msg.is_ai ? (
-                <AIResponseFormatter response={msg.content} />
+                <AIResponseFormatter response={msg.content || "Loading.."} truncated={msg.truncated} />
               ) : (
                 <p className="text-base">{msg.content}</p>
               )}
