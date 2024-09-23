@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from 'next/server';
 
-const WORD_LIMIT = 900;
+const CHAR_LIMIT = 5000;
 
 const getMealDetails = async (id: string) => {
   try {
@@ -30,8 +30,7 @@ async function getAIResponseStream(message: string, mealDetails: any) {
           {
             role: "system",
             content: `You are a friendly assistant that helps with meal information. Your responses should be short, or at least easily readable like a list. 
-            You are also United States based. Here are the details of the meal: ${JSON.stringify(mealDetails)}
-            IMPORTANT: Your response must not exceed ${WORD_LIMIT} words. If you reach this limit, end your response with "[TRUNCATED]".`,
+            You are also United States based. Here are the details of the meal: ${JSON.stringify(mealDetails)}`,
           },
           {
             role: "user",
@@ -58,7 +57,8 @@ async function* streamCompletion(stream: ReadableStream<Uint8Array>) {
   const reader = stream.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
-  let wordCount = 0;
+  let charCount = 0;
+  let isTruncated = false;
 
   try {
     while (true) {
@@ -77,15 +77,14 @@ async function* streamCompletion(stream: ReadableStream<Uint8Array>) {
             try {
               const parsed = JSON.parse(data);
               if (parsed.response) {
-                const words = parsed.response.split(/\s+/);
-                wordCount += words.length;
+                charCount += parsed.response.length;
                 
-                if (wordCount > WORD_LIMIT) {
-                  yield "[TRUNCATED]";
-                  return;
+                if (charCount > CHAR_LIMIT && !isTruncated) {
+                  isTruncated = true;
+                  yield JSON.stringify({ chunk: parsed.response, isTruncated: true });
+                } else if (!isTruncated) {
+                  yield JSON.stringify({ chunk: parsed.response, isTruncated: false });
                 }
-                
-                yield parsed.response;
               }
             } catch (error) {
               console.error('Error parsing JSON:', error);
@@ -123,7 +122,7 @@ export async function GET(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       for await (const chunk of streamCompletion(aiResponseStream)) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk })}\n\n`));
+        controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
       }
       controller.close();
     },

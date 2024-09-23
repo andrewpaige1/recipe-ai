@@ -53,16 +53,14 @@ export default function ChatInput({ mealId, initialMessages }: ChatInputProps) {
 
       eventSourceRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.chunk === "[TRUNCATED]") {
-          isTruncated = true;
-          fullResponse += data.chunk.replace("[TRUNCATED]", "");
-          updateAIMessage(aiMessageId, fullResponse, true);
+        fullResponse += data.chunk;
+        isTruncated = data.isTruncated;
+        updateAIMessage(aiMessageId, fullResponse, isTruncated);
+        
+        if (isTruncated) {
           if (eventSourceRef.current) {
             eventSourceRef.current.close();
           }
-        } else {
-          fullResponse += data.chunk;
-          updateAIMessage(aiMessageId, fullResponse, false);
         }
       };
 
